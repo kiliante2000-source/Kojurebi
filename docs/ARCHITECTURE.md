@@ -53,4 +53,3 @@ La simulación está lista para sustituirse por Stripe/Redsys más adelante sin 
 
 - Dev: Vite `:45321` + API `:45322` + SQLite
 - Prod: Docker Compose → Nginx (estáticos + `/api` + `/uploads`) → API
-- CI: tests y build en GitHub Actions

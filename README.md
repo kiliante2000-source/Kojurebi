@@ -28,7 +28,7 @@ El catálogo muestra **solo piezas reales**. El filtro Packs queda vacío hasta 
 | Tienda | React 19, TypeScript, Vite, Zustand, Tailwind CSS v4, Framer Motion |
 | API | Node.js, Express, TypeScript, Prisma, Zod, JWT (cookie httpOnly) |
 | Datos | SQLite en local · MySQL en producción (cambiando el provider de Prisma) |
-| Infra | Docker Compose, Nginx, GitHub Actions |
+| Infra | Docker Compose y Nginx |
 
 ## Carpetas
 
@@ -47,7 +47,7 @@ Kojurebi/
 │   └── src/                  # rutas, pedidos, productos, auth
 ├── docker/                   # Dockerfiles y Nginx
 ├── docs/                     # arquitectura, base de datos, roadmap
-└── .github/workflows         # tests y build
+└── package.json              # scripts de la tienda y la API
 ```
 
 | Carpeta | Para qué |

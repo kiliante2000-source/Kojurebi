@@ -9,7 +9,7 @@
 - Panel para subir/editar ilustraciones
 - Gestión de pedidos y estados de envío
 - Tests API + helpers de dinero
-- Docker + GitHub Actions
+- Docker
 
 ## Siguiente (cuando haya pasarela real)
 
