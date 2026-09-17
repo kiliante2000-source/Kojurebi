@@ -89,7 +89,7 @@ const products = [
     format: 'Pack de 2',
     frame: 'square',
     images: [
-      { url: '/shop/stickers/celebi-vineta.jpg', alt: 'Pegatina Celebi, viñeta floral' },
+      { url: '/shop/stickers/celebi-vineta.png', alt: 'Pegatina Celebi, viñeta floral' },
       { url: '/shop/stickers/celebi-troquel.png', alt: 'Pegatina Celebi, recorte' },
       { url: '/shop/stickers/celebi-campo.jpg', alt: 'Celebi en un campo de flores, foto de ambiente' },
     ],
