@@ -18,6 +18,9 @@ export function ImageCarousel({
   autoPlay = false,
   interval = 2800,
   capHeightOnMobile = false,
+  onExpand,
+  activeIndex,
+  onIndexChange,
 }: {
   images: CarouselImage[];
   className?: string;
@@ -28,24 +31,42 @@ export function ImageCarousel({
   autoPlay?: boolean;
   interval?: number;
   capHeightOnMobile?: boolean;
+  onExpand?: (index: number) => void;
+  activeIndex?: number;
+  onIndexChange?: (index: number) => void;
 }) {
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(activeIndex ?? 0);
   const [direction, setDirection] = useState(0);
   const count = images.length;
 
+  const goTo = useCallback(
+    (next: number, dir?: number) => {
+      if (count < 2) return;
+      const wrapped = (next + count) % count;
+      setDirection(dir ?? (wrapped > index ? 1 : -1));
+      setIndex(wrapped);
+      onIndexChange?.(wrapped);
+    },
+    [count, index, onIndexChange],
+  );
+
   const go = useCallback(
     (dir: number) => {
-      if (count < 2) return;
-      setDirection(dir);
-      setIndex((current) => (current + dir + count) % count);
+      goTo(index + dir, dir);
     },
-    [count],
+    [goTo, index],
   );
 
   const jump = (next: number) => {
-    setDirection(next > index ? 1 : -1);
-    setIndex(next);
+    goTo(next, next > index ? 1 : -1);
   };
+
+  useEffect(() => {
+    if (typeof activeIndex !== 'number' || activeIndex === index) return;
+    if (activeIndex < 0 || activeIndex >= count) return;
+    setDirection(activeIndex > index ? 1 : -1);
+    setIndex(activeIndex);
+  }, [activeIndex, count, index]);
 
   useEffect(() => {
     if (!autoPlay || count < 2) return;
@@ -61,7 +82,7 @@ export function ImageCarousel({
     );
   }
 
-  const current = images[index];
+  const current = images[index] ?? images[0];
   const contain = fit === 'contain';
 
   return (
@@ -85,7 +106,7 @@ export function ImageCarousel({
         >
           <motion.div
             className="absolute inset-0"
-            style={{ touchAction: 'pan-y' }}
+            style={{ touchAction: count > 1 ? 'pan-x pan-y' : 'pan-y' }}
             onPanEnd={(_, info) => {
               if (count < 2) return;
               if (info.offset.x < -60 || info.velocity.x < -350) go(1);
@@ -118,7 +139,7 @@ export function ImageCarousel({
             <button
               type="button"
               aria-label="Imagen anterior"
-              className="absolute left-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center border-3 border-cobalt bg-cream font-head text-xl sm:left-3"
+              className="absolute left-2 top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 place-items-center border-3 border-cobalt bg-cream font-head text-xl lg:grid sm:left-3"
               onClick={() => go(-1)}
             >
               ←
@@ -126,7 +147,7 @@ export function ImageCarousel({
             <button
               type="button"
               aria-label="Imagen siguiente"
-              className="absolute right-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center border-3 border-cobalt bg-cream font-head text-xl sm:right-3"
+              className="absolute right-2 top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 place-items-center border-3 border-cobalt bg-cream font-head text-xl lg:grid sm:right-3"
               onClick={() => go(1)}
             >
               →
@@ -155,7 +176,19 @@ export function ImageCarousel({
             {index + 1}/{count}
           </span>
         )}
+
       </div>
+      {onExpand && (
+        <div className="border-t-3 border-cobalt bg-yellow lg:hidden">
+          <button
+            type="button"
+            className="flex min-h-11 w-full items-center justify-center px-3 py-2 font-head text-xs font-extrabold uppercase tracking-wide"
+            onClick={() => onExpand(index)}
+          >
+            ver grande
+          </button>
+        </div>
+      )}
 
       {showThumbs && count > 1 && (
         <div className="mt-3 flex gap-2 overflow-x-auto hide-scrollbar">

@@ -15,7 +15,7 @@ export function isArtworkEventTarget(target: EventTarget | null) {
   if (!(target instanceof Element)) return false;
   if (target.closest('input, textarea, select, [contenteditable="true"]')) return false;
   return Boolean(
-    target.closest('.protected-art, .protected-art-shield, .lookbook-art, .brand-mark') ||
+    target.closest('.protected-art, .protected-art-shield, .lookbook-art, .brand-mark, .artwork-lightbox') ||
       target.tagName === 'IMG',
   );
 }
@@ -31,7 +31,7 @@ export function isPinterestWidget(node: Node) {
 
 export function stripPinterestWidgets(root: ParentNode = document) {
   const extra: HTMLElement[] = [];
-  if (root instanceof Element && isPinterestWidget(root)) extra.push(root);
+  if (root instanceof HTMLElement && isPinterestWidget(root)) extra.push(root);
   root.querySelectorAll(PINTEREST_WIDGET_SELECTOR).forEach((node) => {
     if (node instanceof HTMLElement) extra.push(node);
   });

@@ -12,6 +12,7 @@ import {
   pieceShape,
   printLineTitle,
   selectHomePieces,
+  shopDisplayImages,
   shopFrameAspect,
   shopFrameFit,
   sizeHint,
@@ -213,5 +214,40 @@ describe('home mosaic', () => {
     expect(mosaicSpanInList(chica, packed)).toBe('col-span-1 md:col-span-2');
     expect(mosaicSpanInList(diamante, packed)).toBe('col-span-2 md:col-span-2');
     expect(mosaicSpanInList(celebi, packed)).toBe('col-span-2 md:col-span-2');
+  });
+
+  it('keeps all three sticker photos for the shop carousel', () => {
+    const celebi = stubProduct({
+      slug: 'celebi',
+      category: 'sticker',
+      frame: 'square',
+      images: [
+        { id: '1', url: '/shop/stickers/celebi-vineta.jpg', alt: 'viñeta', sortOrder: 0 },
+        { id: '2', url: '/shop/stickers/celebi-troquel.jpg', alt: 'troquel', sortOrder: 1 },
+        { id: '3', url: '/shop/stickers/celebi-campo.jpg', alt: 'ambiente', sortOrder: 2 },
+      ],
+    });
+    expect(shopDisplayImages(celebi).map((shot) => shot.url)).toEqual([
+      '/shop/stickers/celebi-vineta.jpg',
+      '/shop/stickers/celebi-troquel.jpg',
+      '/shop/stickers/celebi-campo.jpg',
+    ]);
+  });
+
+  it('still cycles Howl through its two skies', () => {
+    const howl = stubProduct({
+      slug: 'howl',
+      category: 'print',
+      frame: 'landscape',
+      editions: [
+        { label: 'Noche oscura', url: '/shop/prints/howl-noche-clara.png' },
+        { label: 'Estrellas fugaces', url: '/shop/prints/howl-estrellas.png' },
+      ],
+      images: [
+        { id: '1', url: '/shop/prints/howl-noche-clara.png', alt: 'noche', sortOrder: 0 },
+        { id: '2', url: '/shop/prints/howl-estrellas.png', alt: 'estrellas', sortOrder: 1 },
+      ],
+    });
+    expect(shopDisplayImages(howl).map((shot) => shot.id)).toEqual(['Noche oscura', 'Estrellas fugaces']);
   });
 });

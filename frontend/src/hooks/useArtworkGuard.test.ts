@@ -13,6 +13,12 @@ describe('artwork guard', () => {
     expect(isArtworkEventTarget(shield)).toBe(true);
     expect(isArtworkEventTarget(wrap)).toBe(true);
 
+    const viewer = document.createElement('div');
+    viewer.className = 'artwork-lightbox';
+    document.body.append(viewer);
+    expect(isArtworkEventTarget(viewer)).toBe(true);
+    viewer.remove();
+
     const field = document.createElement('input');
     wrap.append(field);
     expect(isArtworkEventTarget(field)).toBe(false);

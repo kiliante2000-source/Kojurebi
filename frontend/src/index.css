@@ -125,6 +125,64 @@ body {
   cursor: inherit;
 }
 
+.artwork-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-pink);
+  color: var(--color-cobalt);
+}
+
+.artwork-lightbox-stage {
+  display: grid;
+  min-height: 0;
+  flex: 1 1 auto;
+  place-items: center;
+  overflow: hidden;
+  padding: 0.55rem 0.7rem;
+  background: var(--color-pink);
+}
+
+.artwork-lightbox .artwork-lightbox-art {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  max-width: 100%;
+  place-items: center;
+}
+
+.artwork-lightbox .artwork-lightbox-art img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.artwork-lightbox-stage.is-zoomed {
+  display: block;
+  overflow: auto;
+  touch-action: pan-x pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.artwork-lightbox-stage.is-zoomed .artwork-lightbox-art {
+  display: block;
+  width: 180%;
+  max-width: none;
+  height: auto;
+}
+
+.artwork-lightbox-stage.is-zoomed .artwork-lightbox-art img {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  max-width: none;
+}
+
 [class^="PIN_"],
 [class*=" PIN_"],
 [id^="PIN_"],
@@ -331,6 +389,11 @@ iframe[src*="pinimg.com"] {
   transform: translateZ(0);
 }
 
+.marquee-pair {
+  flex-shrink: 0;
+  border-bottom: 3px solid var(--color-cobalt);
+}
+
 .marquee-track {
   display: flex;
   width: max-content;
@@ -428,7 +491,8 @@ iframe[src*="pinimg.com"] {
 }
 
 .lookbook-wrap:hover .lookbook-track,
-.lookbook-wrap.is-offscreen .lookbook-track {
+.lookbook-wrap.is-offscreen .lookbook-track,
+.lookbook-wrap:has(:active) .lookbook-track {
   animation-play-state: paused;
 }
 

@@ -2,12 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DraggableSticker, Heart, Magnetic, Marquee, Reveal, Star, TiltFrame, Wordmark } from '../components/brand/Decor';
 import { ProductCard } from '../components/shop/ProductCard';
+import { LookbookSlide } from '../components/shop/LookbookSlide';
 import { ProtectedImg } from '../components/shop/ProtectedArt';
 import { api } from '../services/api';
 import type { Product } from '../types/shop';
-import { isPaperEdition } from '../types/shop';
-import { formatMoney } from '../utils/money';
-import { MOSAIC_GRID, isStudioPrint, minPrintPrice, mosaicSpanInList, pieceShape, productSizes, selectHomePieces } from '../utils/print';
+import { MOSAIC_GRID, isStudioPrint, mosaicSpanInList, selectHomePieces } from '../utils/print';
 
 export function HomePage() {
   const [featured, setFeatured] = useState<Product[]>([]);
@@ -19,8 +18,8 @@ export function HomePage() {
       .get<{ products: Product[] }>('/api/catalog/products')
       .then((data) => {
         setFeatured(selectHomePieces(data.products));
-        const editions = data.products.filter((product) => isStudioPrint(product));
-        setLookbookSource(editions.length ? editions : data.products.slice(0, 6));
+        const moving = data.products.filter((product) => isStudioPrint(product) || product.category === 'sticker');
+        setLookbookSource(moving.length ? moving : data.products.slice(0, 6));
       })
       .catch(() => {
         setFeatured([]);
@@ -78,13 +77,16 @@ export function HomePage() {
             <Reveal className="relative z-20 order-2 bg-pink lg:order-1 lg:bg-transparent">
               <p className="font-serif text-sm italic sm:text-xl">art things people ♡</p>
               <Wordmark className="mt-1.5 block whitespace-nowrap text-[clamp(2.6rem,12.8vw,3.45rem)] sm:text-8xl lg:text-[7rem]" />
-              <p className="mt-2.5 max-w-xl font-head text-lg font-extrabold leading-[1.05] max-sm:whitespace-nowrap sm:text-3xl">
+              <p className="mt-3.5 max-w-xl font-head text-lg font-extrabold leading-[1.05] max-sm:whitespace-nowrap sm:mt-2.5 sm:text-3xl">
                 Small art.{' '}
                 <br className="max-sm:hidden" />
                 Big vibes.
               </p>
               <p className="mt-3 max-w-xl text-sm leading-relaxed sm:text-xl">
-                Prints, stickers y originales con grano de lápiz. Entras, miras, te lo llevas. Sin cuenta.
+                Prints, stickers y originales con grano de lápiz.
+              </p>
+              <p className="mt-0.5 max-w-xl text-sm leading-relaxed sm:text-xl">
+                Entras, miras y te lo llevas sin cuenta.
               </p>
               <div className="mt-5 flex flex-row flex-wrap gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap">
                 <Magnetic className="sm:w-auto">
@@ -143,17 +145,29 @@ export function HomePage() {
             </div>
           </div>
         </section>
-        <div className="relative z-10 mt-auto">
+        <div className="marquee-pair relative z-10 mt-auto">
           <Marquee items={['GOOD IDEAS SWEETER DAYS', 'SMALL ART BIG VIBES', 'ART THINGS PEOPLE ♡', 'KOJUREBI STUDIO']} />
           <Marquee reverse items={['PRINT', 'STICKER', 'ORIGINAL', 'RISÓGRAFO', 'COBALTO', 'BUBBLEGUM']} />
         </div>
       </div>
 
-      <section className="border-y-3 border-cobalt bg-cream px-4 py-8 md:px-8 md:py-20">
+      <section className="border-b-3 border-cobalt bg-cream px-4 py-8 md:px-8 md:py-20">
         <div className="mx-auto max-w-[1400px]">
           <Reveal className="mb-5 md:mb-10">
-            <h2 className="font-head text-[clamp(1.45rem,6.4vw,1.85rem)] font-extrabold leading-[0.9] sm:text-6xl">Dibujitos que se llevan</h2>
-            <p className="font-serif mt-2 max-w-2xl text-base italic sm:text-xl">
+            <h2 className="font-head text-[clamp(1.55rem,12vw,2.15rem)] font-extrabold leading-[0.86] sm:text-6xl sm:leading-[0.9]">
+              <span className="sm:hidden">
+                Dibujitos
+                <span className="mt-1 block">que se llevan</span>
+              </span>
+              <span className="hidden sm:inline">Dibujitos que se llevan</span>
+            </h2>
+            <p className="font-serif mt-3 max-w-2xl text-base italic leading-snug sm:hidden">
+              Originales, prints y stickers. Cada uno en su forma,
+            </p>
+            <p className="font-serif mt-0.5 max-w-2xl text-base italic leading-snug sm:hidden">
+              todos en la misma pared.
+            </p>
+            <p className="font-serif mt-2 hidden max-w-2xl text-base italic sm:block sm:text-xl">
               Originales, prints y stickers. Cada uno en su forma, todos en la misma pared.
             </p>
           </Reveal>
@@ -187,42 +201,11 @@ export function HomePage() {
         <div ref={lookbookRef} className="lookbook-wrap">
           <div className="lookbook-track">
             {lookbook.map((product, index) => (
-              <Link key={`${product.id}-${index}`} to={`/tienda/${product.slug}`} className="group shrink-0">
-                <div className="frame flex w-fit flex-col overflow-hidden">
-                  <div className="bg-pink p-2 sm:p-4">
-                    <div className={`lookbook-art is-${pieceShape(product)}`}>
-                      {product.images[0] && (
-                        <ProtectedImg
-                          src={product.images[0].url}
-                          alt={product.title}
-                          className={`absolute inset-0 h-full w-full ${
-                            isPaperEdition(product.category) ? 'object-contain' : 'object-cover'
-                          }`}
-                          wrapClassName="absolute inset-0"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex min-h-[3.8rem] w-0 min-w-full shrink-0 flex-col justify-center gap-0.5 px-2.5 py-2 sm:h-[5.25rem] sm:flex-row sm:items-center sm:justify-between sm:px-4 sm:py-0">
-                    <div className="min-w-0">
-                      <p className="font-head truncate text-sm font-extrabold sm:text-lg">{product.title}</p>
-                      <p className="font-serif truncate italic text-[10px] sm:text-base">
-                        {(index % lookbookSource.length) + 1 < 10
-                          ? `0${(index % lookbookSource.length) + 1}`
-                          : (index % lookbookSource.length) + 1}{' '}
-                        / look
-                      </p>
-                    </div>
-                    <p className="font-head shrink-0 whitespace-nowrap text-xs font-extrabold sm:text-base">
-                      {productSizes(product).length > 1
-                        ? `desde ${formatMoney(minPrintPrice(product))}`
-                        : formatMoney(product.priceCents)}
-                    </p>
-                  </div>
-                </div>
-              </Link>
+              <LookbookSlide
+                key={`${product.id}-${index}`}
+                product={product}
+                look={(index % lookbookSource.length) + 1}
+              />
             ))}
           </div>
         </div>

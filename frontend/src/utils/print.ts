@@ -34,6 +34,24 @@ export function productEditions(product: Product): PrintEdition[] {
   return parsePrintEditions(product.editions);
 }
 
+export type ShopShot = { id: string; url: string; alt: string };
+
+export function shopDisplayImages(product: Product): ShopShot[] {
+  const editions = productEditions(product);
+  if (editions.length > 1) {
+    return editions.map((edition) => ({
+      id: edition.label,
+      url: edition.url,
+      alt: edition.label,
+    }));
+  }
+  return product.images.map((image, index) => ({
+    id: image.id || `${image.url}-${index}`,
+    url: image.url,
+    alt: image.alt,
+  }));
+}
+
 export function defaultPrintEdition(editions: PrintEdition[]) {
   return editions[0];
 }

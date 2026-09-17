@@ -96,7 +96,7 @@ export function Marquee({ items, reverse = false }: { items: string[]; reverse?:
     ));
 
   return (
-    <div className="marquee-wrap overflow-hidden border-y-3 border-cobalt bg-yellow py-1.5 sm:py-3">
+    <div className="marquee-wrap overflow-hidden border-t-3 border-cobalt bg-yellow py-3">
       <div className={`marquee-track ${reverse ? 'reverse' : ''}`}>
         <div className="marquee-group">{group(0)}</div>
         <div className="marquee-group" aria-hidden>

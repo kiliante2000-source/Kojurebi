@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import type { Product } from '../../types/shop';
 import { artworkImgProps, ProtectedArt } from './ProtectedArt';
 import { cn } from '../../utils/cn';
@@ -9,11 +8,12 @@ import {
   minPrintPrice,
   mosaicSpan,
   pieceShape,
-  productEditions,
   productSizes,
+  shopDisplayImages,
   shopFrameAspect,
   shopFrameFit,
 } from '../../utils/print';
+import { useSwipeShots } from './useSwipeShots';
 
 export function ProductCard({
   product,
@@ -28,32 +28,21 @@ export function ProductCard({
   variant?: 'shop' | 'mosaic';
   spanClass?: string;
 }) {
-  const images = product.images;
-  const [shot, setShot] = useState(0);
-  const [hover, setHover] = useState(false);
-  const current = images[shot] ?? images[0];
+  const images = shopDisplayImages(product);
+  const swipe = useSwipeShots(images.length);
+  const current = images[swipe.shot] ?? images[0];
   const contain = shopFrameFit(product.category, product.frame) === 'contain';
   const sizes = productSizes(product);
-  const editions = productEditions(product);
   const price = minPrintPrice(product);
   const mosaic = variant === 'mosaic';
   const priceLabel = sizes.length > 1 ? `desde ${formatMoney(price)}` : formatMoney(price);
 
-  useEffect(() => {
-    if (!hover || images.length < 2) return;
-    const timer = window.setInterval(() => {
-      setShot((i) => (i + 1) % images.length);
-    }, 900);
-    return () => window.clearInterval(timer);
-  }, [hover, images.length]);
-
   return (
     <Link
       to={`/tienda/${product.slug}`}
-      onPointerEnter={() => setHover(true)}
-      onPointerLeave={() => {
-        setHover(false);
-        setShot(0);
+      onClick={(event) => {
+        if (!swipe.consumeSwipe()) return;
+        event.preventDefault();
       }}
       className={cn(
         'group block min-w-0',
@@ -63,14 +52,17 @@ export function ProductCard({
     >
       <div className="frame overflow-hidden transition duration-500 group-hover:-translate-y-2 group-hover:shadow-[14px_14px_0_#1D3A6E]">
         <div className={cn('relative overflow-hidden bg-pink', contain ? 'p-2 sm:p-4' : shopFrameAspect(product.category, product.frame))}>
-          <div className={cn('relative', contain ? shopFrameAspect(product.category, product.frame) : 'absolute inset-0')}>
+          <motion.div
+            className={cn('relative', contain ? shopFrameAspect(product.category, product.frame) : 'absolute inset-0')}
+            {...swipe.stageProps}
+          >
             <AnimatePresence mode="popLayout" initial={false}>
               {current ? (
                 <ProtectedArt
-                  key={current.url + shot}
+                  key={current.url + swipe.shot}
                   className="absolute inset-0"
                   initial={{ opacity: 0.4, scale: 1.06 }}
-                  animate={{ opacity: 1, scale: hover ? 1.08 : 1 }}
+                  animate={{ opacity: 1, scale: swipe.hover ? 1.08 : 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.45 }}
                 >
@@ -90,34 +82,22 @@ export function ProductCard({
                 <div className="grid h-full place-items-center font-serif text-xl italic">sin foto</div>
               )}
             </AnimatePresence>
-          </div>
+          </motion.div>
           <span className="absolute left-1.5 top-1.5 border-3 border-cobalt bg-yellow px-1.5 py-0.5 font-head text-[9px] font-extrabold uppercase tracking-wide sm:left-3 sm:top-3 sm:px-2 sm:py-1 sm:text-[11px]">
             {categoryLabel(product.category)}
           </span>
-          {(editions.length > 1 || images.length > 1) && (
-            <span className="absolute right-1.5 top-1.5 border-3 border-cobalt bg-cream px-1.5 py-0.5 font-head text-[9px] font-extrabold sm:right-3 sm:top-3 sm:px-2 sm:py-1 sm:text-[11px]">
-              {editions.length > 1 ? `${editions.length} versiones` : `${images.length} fotos`}
-            </span>
-          )}
           {product.stock <= 0 && (
             <span className="absolute right-3 bottom-3 bg-cobalt px-2 py-1 font-head text-[11px] text-yellow">
               agotado
             </span>
           )}
-          {images.length > 1 && (
+          {swipe.carousel && (
             <div className="absolute bottom-3 left-0 right-0 z-10 flex justify-center gap-1.5">
               {images.map((image, i) => (
-                <button
+                <span
                   key={image.id}
-                  type="button"
-                  aria-label={`Foto ${i + 1}`}
-                  className={`h-1.5 rounded-full border border-cobalt ${i === shot ? 'w-5 bg-yellow' : 'w-1.5 bg-cream'}`}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    setShot(i);
-                    setHover(false);
-                  }}
+                  aria-hidden
+                  className={`h-1.5 rounded-full border border-cobalt ${i === swipe.shot ? 'w-5 bg-yellow' : 'w-1.5 bg-cream'}`}
                 />
               ))}
             </div>

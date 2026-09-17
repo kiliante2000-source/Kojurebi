@@ -5,9 +5,10 @@ import { api } from '../services/api';
 import type { Product } from '../types/shop';
 import { isPaperEdition } from '../types/shop';
 import { categoryLabel, formatMoney } from '../utils/money';
-import { defaultPrintEdition, defaultPrintSize, editionHint, productEditions, productSizes, shopFrameAspect, shopFrameFit, sizeHint } from '../utils/print';
+import { defaultPrintEdition, defaultPrintSize, editionHint, productEditions, productSizes, shopDisplayImages, shopFrameAspect, shopFrameFit, sizeHint } from '../utils/print';
 import { useCartStore } from '../stores/cartStore';
 import { ImageCarousel } from '../components/shop/ImageCarousel';
+import { ArtworkLightbox, usePhoneArtworkViewport } from '../components/shop/ArtworkLightbox';
 import { ProtectedImg } from '../components/shop/ProtectedArt';
 import { Magnetic } from '../components/brand/Decor';
 
@@ -19,7 +20,10 @@ export function ProductPage() {
   const [editionLabel, setEditionLabel] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
   const add = useCartStore((s) => s.add);
+  const phone = usePhoneArtworkViewport();
 
   useEffect(() => {
     if (!slug) return;
@@ -59,9 +63,29 @@ export function ProductPage() {
     editions.find((edition) => edition.label === editionLabel) ?? defaultPrintEdition(editions);
   const priceCents = selected?.priceCents ?? product.priceCents;
   const paper = isPaperEdition(product.category);
-  const gallery = selectedEdition
-    ? [{ url: selectedEdition.url, alt: selectedEdition.label }]
-    : product.images;
+  const editionShots = editions.map((edition) => ({
+    id: edition.label,
+    url: edition.url,
+    alt: `${product.title} · ${edition.label}`,
+  }));
+  const editionIndex = Math.max(
+    0,
+    editions.findIndex((edition) => edition.label === selectedEdition?.label),
+  );
+  const gallery = editions.length
+    ? phone
+      ? editionShots
+      : selectedEdition
+        ? [{ url: selectedEdition.url, alt: selectedEdition.label }]
+        : editionShots
+    : shopDisplayImages(product);
+
+  const pickEdition = (label: string) => {
+    setEditionLabel(label);
+    setAdded(false);
+    const next = editions.findIndex((edition) => edition.label === label);
+    if (next >= 0) setViewerIndex(next);
+  };
 
   const addToBag = () => {
     add(product, qty, selected, selectedEdition);
@@ -69,6 +93,7 @@ export function ProductPage() {
   };
 
   return (
+    <>
     <div
       className={`mx-auto grid max-w-[1400px] items-start gap-8 px-4 py-6 pb-44 max-sm:gap-4 max-sm:py-4 lg:gap-12 lg:py-12 lg:pb-12 md:px-8 ${
         paper ? 'lg:grid-cols-[1.25fr_0.75fr]' : 'lg:grid-cols-2'
@@ -81,12 +106,26 @@ export function ProductPage() {
         className="frame h-fit w-full overflow-hidden"
       >
         <ImageCarousel
-          key={selectedEdition?.url ?? product.id}
+          key={product.id}
           images={gallery}
-          showThumbs={gallery.length > 1}
+          showThumbs={gallery.length > 1 && !phone}
+          showArrows={!phone}
           aspect={shopFrameAspect(product.category, product.frame)}
           fit={shopFrameFit(product.category, product.frame)}
           capHeightOnMobile
+          activeIndex={editions.length && phone ? editionIndex : undefined}
+          onIndexChange={(next) => {
+            setViewerIndex(next);
+            const edition = editions[next];
+            if (edition) {
+              setEditionLabel(edition.label);
+              setAdded(false);
+            }
+          }}
+          onExpand={(next) => {
+            setViewerIndex(next);
+            setViewerOpen(true);
+          }}
         />
       </motion.div>
       <motion.div
@@ -113,10 +152,7 @@ export function ProductPage() {
                   <button
                     key={edition.label}
                     type="button"
-                    onClick={() => {
-                      setEditionLabel(edition.label);
-                      setAdded(false);
-                    }}
+                    onClick={() => pickEdition(edition.label)}
                     className={`relative overflow-hidden border-3 border-cobalt text-left ${active ? 'bg-yellow' : 'bg-cream'}`}
                   >
                     <ProtectedImg src={edition.url} alt="" className="aspect-[3/2] w-full object-cover max-lg:aspect-[2/1]" />
@@ -250,5 +286,21 @@ export function ProductPage() {
         )}
       </div>
     </div>
+    <ArtworkLightbox
+      open={viewerOpen}
+      images={gallery}
+      index={viewerIndex}
+      title={product.title}
+      onClose={() => setViewerOpen(false)}
+      onIndexChange={(next) => {
+        setViewerIndex(next);
+        const edition = editions[next];
+        if (edition) {
+          setEditionLabel(edition.label);
+          setAdded(false);
+        }
+      }}
+    />
+    </>
   );
 }
