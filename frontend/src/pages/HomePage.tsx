@@ -18,8 +18,8 @@ export function HomePage() {
       .get<{ products: Product[] }>('/api/catalog/products')
       .then((data) => {
         setFeatured(selectHomePieces(data.products));
-        const moving = data.products.filter((product) => isStudioPrint(product) || product.category === 'sticker');
-        setLookbookSource(moving.length ? moving : data.products.slice(0, 6));
+        const editions = data.products.filter((product) => isStudioPrint(product));
+        setLookbookSource(editions.length ? editions : data.products.slice(0, 6));
       })
       .catch(() => {
         setFeatured([]);
