@@ -1,0 +1,36 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: file:/app/data/kojurebi.db
+      JWT_SECRET: change-me-in-production-kojurebi-secret
+      JWT_EXPIRES_IN: 7d
+      COOKIE_NAME: kojurebi_token
+      PORT: 45322
+      NODE_ENV: production
+      CORS_ORIGIN: http://localhost
+      FRONTEND_URL: http://localhost
+      UPLOAD_DIR: /app/uploads
+      MAX_UPLOAD_BYTES: 8388608
+    volumes:
+      - db_data:/app/data
+      - uploads_data:/app/uploads
+    ports:
+      - "45322:45322"
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+volumes:
+  db_data:
+  uploads_data:
