@@ -341,8 +341,23 @@ iframe[src*="pinimg.com"] {
 .marquee-group {
   display: flex;
   align-items: center;
-  gap: 2.2rem;
-  padding-right: 2.2rem;
+  gap: 0;
+}
+
+.marquee-star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline: 1.15rem;
+  color: var(--color-pink-hot);
+  line-height: 1;
+  transform: translateY(-0.06em);
+}
+
+@media (min-width: 640px) {
+  .marquee-star {
+    margin-inline: 1.85rem;
+  }
 }
 
 .marquee-track.reverse {

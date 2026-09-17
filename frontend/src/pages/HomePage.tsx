@@ -78,9 +78,9 @@ export function HomePage() {
             <Reveal className="relative z-20 order-2 bg-pink lg:order-1 lg:bg-transparent">
               <p className="font-serif text-sm italic sm:text-xl">art things people ♡</p>
               <Wordmark className="mt-1.5 block whitespace-nowrap text-[clamp(2.6rem,12.8vw,3.45rem)] sm:text-8xl lg:text-[7rem]" />
-              <p className="mt-2.5 max-w-xl font-head text-lg font-extrabold leading-[1.05] sm:text-3xl">
-                Small art.
-                <br />
+              <p className="mt-2.5 max-w-xl font-head text-lg font-extrabold leading-[1.05] max-sm:whitespace-nowrap sm:text-3xl">
+                Small art.{' '}
+                <br className="max-sm:hidden" />
                 Big vibes.
               </p>
               <p className="mt-3 max-w-xl text-sm leading-relaxed sm:text-xl">

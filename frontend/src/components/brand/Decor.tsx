@@ -86,10 +86,12 @@ export function Marquee({ items, reverse = false }: { items: string[]; reverse?:
     items.map((item, i) => (
       <span
         key={`${copy}-${item}-${i}`}
-        className="font-head text-base font-extrabold uppercase tracking-[-0.04em] text-cobalt sm:text-3xl md:text-4xl"
+        className="inline-flex items-center font-head text-base font-extrabold uppercase tracking-[-0.04em] text-cobalt sm:text-3xl md:text-4xl"
       >
         {item}
-        <span className="mx-3 text-pink-hot sm:mx-4">★</span>
+        <span className="marquee-star" aria-hidden>
+          ★
+        </span>
       </span>
     ));
 
