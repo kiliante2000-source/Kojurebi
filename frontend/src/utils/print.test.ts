@@ -222,14 +222,14 @@ describe('home mosaic', () => {
       category: 'sticker',
       frame: 'square',
       images: [
-        { id: '1', url: '/shop/stickers/celebi-vineta.jpg', alt: 'viñeta', sortOrder: 0 },
-        { id: '2', url: '/shop/stickers/celebi-troquel.jpg', alt: 'troquel', sortOrder: 1 },
+        { id: '1', url: '/shop/stickers/celebi-vineta.png', alt: 'viñeta', sortOrder: 0 },
+        { id: '2', url: '/shop/stickers/celebi-troquel.png', alt: 'troquel', sortOrder: 1 },
         { id: '3', url: '/shop/stickers/celebi-campo.jpg', alt: 'ambiente', sortOrder: 2 },
       ],
     });
     expect(shopDisplayImages(celebi).map((shot) => shot.url)).toEqual([
-      '/shop/stickers/celebi-vineta.jpg',
-      '/shop/stickers/celebi-troquel.jpg',
+      '/shop/stickers/celebi-vineta.png',
+      '/shop/stickers/celebi-troquel.png',
       '/shop/stickers/celebi-campo.jpg',
     ]);
   });
